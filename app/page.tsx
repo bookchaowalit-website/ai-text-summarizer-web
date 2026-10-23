@@ -1,21 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-
-const SAMPLE = "Portfolio demos should be honest. A short summary tool can extract the first sentences and key phrases without calling an external LLM API. Keep claims bounded.";
-
-function summarize(text: string, count: number) {
-  const sentences = text.replace(/\s+/g, " ").trim().split(/(?<=[.!?])\s+/).filter(Boolean);
-  const words = text.toLowerCase().match(/[a-z\u0e00-\u0e7f]{4,}/g) || [];
-  const frequency = new Map<string, number>();
-  words.forEach((word) => frequency.set(word, (frequency.get(word) || 0) + 1));
-  return {
-    top: sentences.slice(0, Math.max(1, count)).join(" "),
-    keywords: [...frequency.entries()].sort((a, b) => b[1] - a[1]).slice(0, 8).map(([word]) => word),
-    sentences: sentences.length,
-    words: words.length,
-  };
-}
+import { MAX_SENTENCES, SAMPLE, clampCount, summarize } from "@/lib/summarizer";
 
 export default function Home() {
   const [text, setText] = useState(SAMPLE);
@@ -47,7 +33,7 @@ export default function Home() {
           <div className="station-head"><div><p className="desk-label">EDITED COPY</p><h2>First sentences</h2></div><span className="station-id red">B1</span></div>
           <div className="flap-summary" aria-live="polite">{result.top || "Start typing to make an extract."}</div>
           <div className="output-controls">
-            <label><span>Sentences to keep</span><input type="number" min={1} max={10} value={count} onChange={(event) => setCount(Math.max(1, Number(event.target.value) || 1))} /></label>
+            <label><span>Sentences to keep</span><input type="number" min={1} max={MAX_SENTENCES} value={count} onChange={(event) => setCount(clampCount(event.target.value))} /></label>
             <button className="copy-button" onClick={copySummary}>{copied ? "Copied" : "Copy summary"} <span>↗</span></button>
           </div>
           <div className="keyword-line"><span>KEYWORDS</span>{result.keywords.length ? result.keywords.map((word) => <b key={word}>{word}</b>) : <i>none yet</i>}</div>
