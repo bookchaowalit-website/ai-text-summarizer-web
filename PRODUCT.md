@@ -1,51 +1,42 @@
-# bookchaowalit-text-summarizer-frontend — Product brief
+# Text Summarizer — Product truth
 
-**Slug:** `bookchaowalit-website/bookchaowalit-text-summarizer-frontend`  
-**Generated:** 2026-08-11 (bulk Book Dev closeout)  
-**Status:** starter / portfolio boundary
+> Inferred from the code and copy (no user interview). Checked against the portfolio card claims review
+> (`portfolio-site-web/docs/audits/CARD-CLAIMS-REVIEW-2026-10.md`, row `text-summarizer`, evidence Prototype) on
+> 2026-10-23.
 
-## Current product truth
+## What it is
 
-- This is a browser-only extractive summarizer: it keeps the first N sentences and counts recurring words.
-- It does not understand meaning, call an LLM API, fact-check, or persist text remotely.
+A client-side extractive summarizer: the "summary" is the opening sentences of the source text, unchanged.
 
-## Purpose
+## Who it is for
 
-Portfolio repository under Book Dev. This brief records ownership and the
-current honest status so the nested tree is not an empty shell in the task
-system.
+A portfolio visitor who wants to see a small editing-desk UI, and anyone who needs a quick first-N-sentences cut.
 
-## Runnable path
+## What works today
 
-See `README.md` for install and run instructions when present.
+1. Paste or type text; the page shows the word and sentence counts and the first N sentences (N = 1-10).
+2. The eight most frequent words of four or more letters are listed as keywords.
+3. Copy the extract to the clipboard; reload the sample text.
+4. `/api/mcp` answers JSON-RPC with `summarize`, `keywords` and `get_sample`, running the same code as the page.
+5. Front-end and server errors go to Sentry (errors only, personal data stripped) when `NEXT_PUBLIC_SENTRY_DSN` is set.
 
-## Limits
+## What does not work (and must not be claimed)
 
-- Not claimed as production-ready unless README and tests prove it.
-- Mobile smoke / emulator acceptance is separate and toolchain-dependent.
+- No TF-IDF or sentence scoring, highlighting, export or offline mode (claims removed from the portfolio card in the
+  2026-10 review). No LLM or any other model.
+- Keywords include common words (no stop-word list). Thai text is not segmented.
+- No account, storage or history; nothing survives a reload. No product analytics beyond Vercel Analytics.
 
-## Source README excerpt
+## Live URL and deploy state
 
-```
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+- Live: https://text-summarizer.bookchaowalit.com (HTTP 200 on 2026-10-23).
+- The Vercel project `bookchaowalit-text-summarizer-frontend` is deployed only by CLI (last production 2026-10-23,
+  CLI deploy of commit 07d4474, the Next 16.4.2 security patch) and its Git link names the old repository
+  `bookchaowalit/bookchaowalit-text-summarizer-frontend`, so a push to `main` does not deploy. The live site lags
+  `main` (no Sentry, template MCP route, old word counter) until the owner reconnects Vercel Git to this repository
+  (owner action D9). `NEXT_PUBLIC_SENTRY_DSN` is already set on the Vercel project (Sentry project
+  `ai-text-summarizer-web`, org `personal-yu0`).
 
-## Getting Started
+## Boundaries
 
-First, run the development server:
-
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
-
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
-
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
-
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize an
-```
+- Browser-only apart from the stateless `/api/mcp` route.
