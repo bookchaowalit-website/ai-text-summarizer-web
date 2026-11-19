@@ -1,46 +1,76 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { AppFoot, AppTop, Pill } from "@/components/app-shell";
 import { MAX_SENTENCES, SAMPLE, clampCount, summarize } from "@/lib/summarizer";
+
+const SOURCE = "https://github.com/bookchaowalit-website/ai-text-summarizer-web";
 
 export default function Home() {
   const [text, setText] = useState(SAMPLE);
   const [count, setCount] = useState(2);
-  const [copied, setCopied] = useState(false);
+  const [copied, setCopied] = useState("");
   const result = useMemo(() => summarize(text, count), [text, count]);
   const copySummary = async () => {
-    try { await navigator.clipboard.writeText(result.top); setCopied(true); window.setTimeout(() => setCopied(false), 1500); } catch { setCopied(false); }
+    try {
+      await navigator.clipboard.writeText(result.top);
+      setCopied("Summary copied.");
+    } catch {
+      setCopied("Copy was blocked by the browser. Select the text and copy it manually.");
+    }
   };
 
   return (
-    <main className="copy-desk">
-      <header className="desk-header">
-        <div className="desk-mark">B / COPY DESK</div>
-        <div className="desk-rule" />
-        <div className="desk-status"><span /> EXTRACTIVE / NO API</div>
-      </header>
-      <section className="desk-intro">
-        <div><p className="desk-label">EDITING INSTRUMENT 001</p><h1>Make the<br /><em>shorter cut.</em></h1></div>
-        <p className="intro-note">A browser-only text summarizer that keeps the source sentences intact and surfaces recurring words.</p>
-      </section>
-      <section className="editor-station" aria-label="Text summarizer">
-        <div className="source-column">
-          <div className="station-head"><div><p className="desk-label">SOURCE COPY</p><h2>Paste the long version</h2></div><span className="station-id">A1</span></div>
-          <textarea value={text} onChange={(event) => setText(event.target.value)} aria-label="Text to summarize" placeholder="Write or paste text here..." />
-          <div className="source-footer"><span>{result.words} words / {result.sentences} sentences</span><button onClick={() => setText(SAMPLE)}>Load sample</button></div>
+    <div className="as">
+      <a className="as-skip" href="#source">Skip to the text</a>
+      <AppTop name="Text Summarizer" tagline="Extractive, in your browser" />
+
+      <main className="as-page">
+        <div className="as-intro">
+          <p className="as-eyebrow">Shorter cut</p>
+          <h1>Make the shorter cut.</h1>
+          <p>Paste a long text: it keeps the opening sentences intact and lists the words that recur.</p>
+          <Pill tone="grey">Extractive · no AI model, no API</Pill>
         </div>
-        <div className="output-column">
-          <div className="station-head"><div><p className="desk-label">EDITED COPY</p><h2>First sentences</h2></div><span className="station-id red">B1</span></div>
-          <div className="flap-summary" aria-live="polite">{result.top || "Start typing to make an extract."}</div>
-          <div className="output-controls">
-            <label><span>Sentences to keep</span><input type="number" min={1} max={MAX_SENTENCES} value={count} onChange={(event) => setCount(clampCount(event.target.value))} /></label>
-            <button className="copy-button" onClick={copySummary}>{copied ? "Copied" : "Copy summary"} <span>↗</span></button>
-          </div>
-          <div className="keyword-line"><span>KEYWORDS</span>{result.keywords.length ? result.keywords.map((word) => <b key={word}>{word}</b>) : <i>none yet</i>}</div>
+
+        <div className="ts-desk">
+          <section className="as-composer ts-card" aria-labelledby="source-heading">
+            <h2 id="source-heading">Source text</h2>
+            <label className="as-field" htmlFor="source">
+              Text to summarize
+              <textarea id="source" value={text} onChange={(event) => { setText(event.target.value); setCopied(""); }} placeholder="Write or paste text here…" aria-describedby="source-count" />
+            </label>
+            <div className="as-composer-foot">
+              <span className="ts-meta" id="source-count">{result.words} words · {result.sentences} sentences</span>
+              <div className="as-composer-actions">
+                <button type="button" className="as-plain" onClick={() => setText(SAMPLE)}>Load sample</button>
+                <button type="button" className="as-plain" onClick={() => setText("")} disabled={!text}>Clear</button>
+              </div>
+            </div>
+            <a className="ts-jump" href="#summary">Jump to the summary</a>
+          </section>
+
+          <section className="as-composer ts-card" id="summary" aria-labelledby="summary-heading">
+            <h2 id="summary-heading">Summary</h2>
+            <p className="ts-summary" aria-live="polite" data-empty={result.top ? undefined : "true"}>{result.top || "Paste or type some text and the opening sentences appear here."}</p>
+            <div className="ts-controls">
+              <label className="as-field">
+                Sentences to keep
+                <input type="number" inputMode="numeric" min={1} max={MAX_SENTENCES} value={count} onChange={(event) => setCount(clampCount(event.target.value))} />
+              </label>
+              <button type="button" className="as-button" onClick={copySummary} disabled={!result.top}>Copy summary</button>
+            </div>
+            {copied ? <p className="ts-meta" role="status">{copied}</p> : null}
+            <dl className="ts-keywords">
+              <dt>Keywords</dt>
+              {result.keywords.length ? result.keywords.map((word) => <dd key={word}><Pill tone="grey">{word}</Pill></dd>) : <dd className="ts-meta">None yet: words of four or more letters show up here.</dd>}
+            </dl>
+          </section>
         </div>
-      </section>
-      <section className="desk-note-block"><span className="note-pin" /> <p>This tool selects the opening sentences and counts repeated words. It does not understand meaning, fact-check, or call an LLM.</p></section>
-      <footer className="desk-footer"><span>BOOKCHAOWALIT / TEXT SUMMARIZER</span><span>LOCAL BROWSER PROCESSING</span></footer>
-    </main>
+
+        <p className="as-note">This tool selects the opening sentences and counts repeated words. It does not understand meaning, fact-check, or call an LLM. Nothing you paste leaves this browser.</p>
+      </main>
+      <AppFoot source={SOURCE} />
+    </div>
   );
 }

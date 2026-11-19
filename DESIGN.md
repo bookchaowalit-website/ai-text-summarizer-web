@@ -1,45 +1,18 @@
-# Design system — Text Summarizer
+# Text Summarizer — Design
 
-## Overview
+Since 2026-11-19 the summarizer uses the shared **App shell** (see `APP-SHELL.md`; `app/app-shell.css` and
+`components/app-shell.tsx` are copied byte for byte from productivity-ideas-web). It replaced the earlier
+"copy desk" look, whose 10px letter-spaced mono labels, near-4.5:1 muted text, 10px Load sample link, 70px
+number input, unloaded system fonts (Trebuchet / Georgia / Courier), missing focus ring on the textarea and
+missing link back to the hub failed the design floor (review 2026-11-11).
 
-The summarizer is an editorial copy desk: source copy enters on a paper sheet, the extractive result appears on a dark split-flap board, and the limitations are pinned below the work.
+- Single column on phones, two cards side by side from 900px: **Source text** (textarea, word and sentence
+  count, Load sample, Clear, a "Jump to the summary" link on phones) and **Summary** (the extract, Sentences to
+  keep as a 44px number field, Copy summary, keywords as pills).
+- Honesty: a grey pill says "Extractive · no AI model, no API"; the note under the cards repeats that it does
+  not understand meaning or call an LLM, and that nothing leaves the browser.
 
-## Colors
-
-- #E8E2D8 — paper-desk ground.
-- #F4F0E9 — source sheet.
-- #171716 — output board and primary ink.
-- #1F4B74 — editorial blue for navigation and labels.
-- #D85A3C — vermilion correction mark.
-- #E3B473 — warm output highlight.
-
-## Typography
-
-Trebuchet MS is used for practical controls and Georgia for the reading voice. Courier New is reserved for editorial metadata, counters, and the honest capability note.
-
-## Layout
-
-The first viewport introduces the shorter-cut idea, then splits the task into source copy and edited copy. The source remains a generous writing surface; the output side groups summary, sentence count, copy action, and keyword readout in one station.
-
-## Elevation & Depth
-
-The paper source sheet and dark output board are adjacent material changes. A framed summary block gives the result a stable reading plane without using soft card stacks.
-
-## Shapes
-
-Straight editorial rules, squared controls, and one circular correction pin define the desk. No gradients, glass, or decorative progress widgets.
-
-## Components
-
-- Copy desk header
-- Source textarea and sample loader
-- Extractive summary output
-- Sentence-count control and copy action
-- Keyword strip and limitation note
-
-## Do's and Don'ts
-
-- Do say extractive and no API where the capability is introduced.
-- Do keep the original text visible beside the result.
-- Don't call the result semantic, factual, AI-generated, or meaning-aware.
-- Don't hide the tool's limitations behind a generic “smart” label.
+Floor: Geist via `next/font` (variable on `<html>`), text ≥ 12px, controls ≥ 44px, 4.5:1 text contrast in
+light and dark, 3px focus ring, forced-colors support, no horizontal scroll at 320px. `/more-projects`
+redirects (308) to https://bookchaowalit.com/ and the footer links there. Canonical domain, robots.txt and
+sitemap.xml: https://text-summarizer.bookchaowalit.com.

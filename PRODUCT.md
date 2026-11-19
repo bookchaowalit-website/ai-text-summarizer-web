@@ -25,7 +25,7 @@ A portfolio visitor who wants to see a small editing-desk UI, and anyone who nee
 - No TF-IDF or sentence scoring, highlighting, export or offline mode (claims removed from the portfolio card in the
   2026-10 review). No LLM or any other model.
 - Keywords include common words (no stop-word list). Thai text is not segmented.
-- No account, storage or history; nothing survives a reload. No product analytics beyond Vercel Analytics.
+- No account, storage or history; nothing survives a reload. No product analytics.
 
 ## Live URL and deploy state
 
