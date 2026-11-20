@@ -40,3 +40,7 @@ A portfolio visitor who wants to see a small editing-desk UI, and anyone who nee
 ## Boundaries
 
 - Browser-only apart from the stateless `/api/mcp` route.
+
+## Known limits
+
+- Clear empties the source text at once with no Undo (APP-SHELL.md asks for an undoable removal); behaviour predates the App shell move and is left for a later pass (Codex review 2026-11-20, report ai-text-summarizer-web-fa3fc05334.md).
