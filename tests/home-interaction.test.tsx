@@ -89,4 +89,27 @@ describe("summarizer", () => {
     expect(css).toMatch(/\.ts-keywords \.as-pill \{[^}]*white-space: normal;[^}]*overflow-wrap: anywhere;/);
     expect(css).toMatch(/\.ts-keywords dd \{[^}]*min-width: 0;[^}]*max-width: 100%;/);
   });
+
+  it("does not bring an old Copied back when the same summary returns (Clear, then Load sample)", async () => {
+    const writeText = vi.fn().mockResolvedValue(undefined);
+    Object.defineProperty(navigator, "clipboard", { value: { writeText }, configurable: true });
+    await act(async () => { button("Copy summary").click(); });
+    expect($(".ts-copy-status")!.textContent).toBe("Summary copied.");
+    press(button("Clear"));
+    press(button("Load sample"));
+    expect($(".ts-copy-status")!.textContent).toBe("");
+  });
+
+  it("lets only the latest copy request report", async () => {
+    const finishers: Array<() => void> = [];
+    const failers: Array<(e: Error) => void> = [];
+    const writeText = vi.fn(() => new Promise<void>((resolve, reject) => { finishers.push(resolve); failers.push(reject); }));
+    Object.defineProperty(navigator, "clipboard", { value: { writeText }, configurable: true });
+    act(() => { button("Copy summary").click(); });
+    act(() => { button("Copy summary").click(); });
+    await act(async () => { finishers[1](); });
+    expect($(".ts-copy-status")!.textContent).toBe("Summary copied.");
+    await act(async () => { failers[0](new Error("late")); });
+    expect($(".ts-copy-status")!.textContent).toBe("Summary copied.");
+  });
 });

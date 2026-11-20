@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import { AppFoot, AppTop, Pill } from "@/components/app-shell";
 import { MAX_SENTENCES, SAMPLE, clampCount, summarize } from "@/lib/summarizer";
 
@@ -9,19 +9,32 @@ const SOURCE = "https://github.com/bookchaowalit-website/ai-text-summarizer-web"
 export default function Home() {
   const [text, setText] = useState(SAMPLE);
   const [count, setCount] = useState(2);
-  // The copy result belongs to the summary that was copied; it is hidden as soon as the summary changes.
-  const [copied, setCopied] = useState<{ summary: string; message: string } | null>(null);
+  const [copyMessage, setCopyMessage] = useState("");
+  // Bumped by every edit and every copy: an edit cancels the copy status, and only the latest copy may report.
+  const copyEpoch = useRef(0);
   const result = useMemo(() => summarize(text, count), [text, count]);
-  const copySummary = async () => {
-    const summary = result.top;
-    try {
-      await navigator.clipboard.writeText(summary);
-      setCopied({ summary, message: "Summary copied." });
-    } catch {
-      setCopied({ summary, message: "Copy was blocked by the browser. Select the text and copy it manually." });
-    }
+  const cancelCopy = () => {
+    copyEpoch.current += 1;
+    setCopyMessage("");
   };
-  const copyMessage = copied && copied.summary === result.top ? copied.message : "";
+  const editText = (next: string) => {
+    cancelCopy();
+    setText(next);
+  };
+  const editCount = (next: number) => {
+    cancelCopy();
+    setCount(next);
+  };
+  const copySummary = async () => {
+    const mine = ++copyEpoch.current;
+    let message = "Summary copied.";
+    try {
+      await navigator.clipboard.writeText(result.top);
+    } catch {
+      message = "Copy was blocked by the browser. Select the text and copy it manually.";
+    }
+    if (copyEpoch.current === mine) setCopyMessage(message);
+  };
 
   return (
     <div className="as">
@@ -41,13 +54,13 @@ export default function Home() {
             <h2 id="source-heading">Source text</h2>
             <label className="as-field" htmlFor="source">
               Text to summarize
-              <textarea id="source" value={text} onChange={(event) => setText(event.target.value)} placeholder="Write or paste text here…" aria-describedby="source-count" />
+              <textarea id="source" value={text} onChange={(event) => editText(event.target.value)} placeholder="Write or paste text here…" aria-describedby="source-count" />
             </label>
             <div className="as-composer-foot">
               <span className="ts-meta" id="source-count">{result.words} words · {result.sentences} sentences</span>
               <div className="as-composer-actions">
-                <button type="button" className="as-plain" onClick={() => setText(SAMPLE)}>Load sample</button>
-                <button type="button" className="as-plain" onClick={() => setText("")} disabled={!text}>Clear</button>
+                <button type="button" className="as-plain" onClick={() => editText(SAMPLE)}>Load sample</button>
+                <button type="button" className="as-plain" onClick={() => editText("")} disabled={!text}>Clear</button>
               </div>
             </div>
             <a className="ts-jump" href="#summary">Jump to the summary</a>
@@ -59,7 +72,7 @@ export default function Home() {
             <div className="ts-controls">
               <label className="as-field">
                 Sentences to keep
-                <input type="number" inputMode="numeric" min={1} max={MAX_SENTENCES} value={count} onChange={(event) => setCount(clampCount(event.target.value))} />
+                <input type="number" inputMode="numeric" min={1} max={MAX_SENTENCES} value={count} onChange={(event) => editCount(clampCount(event.target.value))} />
               </label>
               <button type="button" className="as-button" onClick={copySummary} disabled={!result.top}>Copy summary</button>
             </div>
