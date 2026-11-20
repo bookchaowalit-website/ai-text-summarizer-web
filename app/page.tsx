@@ -9,16 +9,19 @@ const SOURCE = "https://github.com/bookchaowalit-website/ai-text-summarizer-web"
 export default function Home() {
   const [text, setText] = useState(SAMPLE);
   const [count, setCount] = useState(2);
-  const [copied, setCopied] = useState("");
+  // The copy result belongs to the summary that was copied; it is hidden as soon as the summary changes.
+  const [copied, setCopied] = useState<{ summary: string; message: string } | null>(null);
   const result = useMemo(() => summarize(text, count), [text, count]);
   const copySummary = async () => {
+    const summary = result.top;
     try {
-      await navigator.clipboard.writeText(result.top);
-      setCopied("Summary copied.");
+      await navigator.clipboard.writeText(summary);
+      setCopied({ summary, message: "Summary copied." });
     } catch {
-      setCopied("Copy was blocked by the browser. Select the text and copy it manually.");
+      setCopied({ summary, message: "Copy was blocked by the browser. Select the text and copy it manually." });
     }
   };
+  const copyMessage = copied && copied.summary === result.top ? copied.message : "";
 
   return (
     <div className="as">
@@ -38,7 +41,7 @@ export default function Home() {
             <h2 id="source-heading">Source text</h2>
             <label className="as-field" htmlFor="source">
               Text to summarize
-              <textarea id="source" value={text} onChange={(event) => { setText(event.target.value); setCopied(""); }} placeholder="Write or paste text here…" aria-describedby="source-count" />
+              <textarea id="source" value={text} onChange={(event) => setText(event.target.value)} placeholder="Write or paste text here…" aria-describedby="source-count" />
             </label>
             <div className="as-composer-foot">
               <span className="ts-meta" id="source-count">{result.words} words · {result.sentences} sentences</span>
@@ -60,7 +63,8 @@ export default function Home() {
               </label>
               <button type="button" className="as-button" onClick={copySummary} disabled={!result.top}>Copy summary</button>
             </div>
-            {copied ? <p className="ts-meta" role="status">{copied}</p> : null}
+            {/* Rendered before the first copy so screen readers announce the result. */}
+            <p className="ts-meta ts-copy-status" role="status">{copyMessage}</p>
             <dl className="ts-keywords">
               <dt>Keywords</dt>
               {result.keywords.length ? result.keywords.map((word) => <dd key={word}><Pill tone="grey">{word}</Pill></dd>) : <dd className="ts-meta">None yet: words of four or more letters show up here.</dd>}

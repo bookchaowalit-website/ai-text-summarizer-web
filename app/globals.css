@@ -16,7 +16,11 @@ html, body { margin: 0; background: var(--as-bg); }
 .ts-controls .as-field input { width: 112px; }
 .ts-keywords { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin: 0; }
 .ts-keywords dt { font-size: 14px; font-weight: 600; margin-right: 4px; }
-.ts-keywords dd { margin: 0; }
+.ts-keywords dd { margin: 0; min-width: 0; max-width: 100%; }
+/* App-local override: the shell pill never wraps, but a keyword can be one long unbroken run (unsegmented Thai). */
+.ts-keywords .as-pill { max-width: 100%; padding-block: 3px; line-height: 1.5; white-space: normal; overflow-wrap: anywhere; }
+.ts-copy-status { margin: 0; }
+.ts-copy-status:empty { margin-top: -12px; }
 .ts-jump { display: inline-flex; align-items: center; min-height: 44px; color: var(--as-accent); font-size: 15px; }
 @media (min-width: 900px) { .ts-jump { display: none; } }
 .as-intro h1 { font-size: clamp(30px, 5vw, 44px); }
