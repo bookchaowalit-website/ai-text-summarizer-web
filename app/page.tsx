@@ -85,7 +85,7 @@ export default function Home() {
           </section>
         </div>
 
-        <p className="as-note">This tool selects the opening sentences and counts repeated words. It does not understand meaning, fact-check, or call an LLM. Nothing you paste leaves this browser.</p>
+        <p className="as-note">This tool selects the opening sentences and counts repeated words. It does not understand meaning, fact-check, or call an LLM. The text you paste is summarised in this browser and is not uploaded.</p>
       </main>
       <AppFoot source={SOURCE} />
     </div>
